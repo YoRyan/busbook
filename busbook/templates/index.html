@@ -1,0 +1,33 @@
+<!doctype html5>
+<html>
+<head>
+        <title>{{ agencies }} Bus Book</title>
+</head>
+
+<body>
+{% for agency in gtfs.GetAgencyList() %}
+        <nav>
+                <h2>{{ agency.agency_name }}</h2>
+                <address>
+                        <a href="{{ agency.agency_url }}"
+                           title="Homepage">{{ agency.agency_url }}</a>
+                        |
+                        {{ agency.agency_phone }}
+                </address>
+                <ul>
+{% for route in get_routes(agency.agency_id) %}
+                        <li>
+                                <a href="routes/{{ agency.agency_id }}-{{ route.route_id }}.html"
+                                   title="Route {{ route.route_short_name }}">
+                                        <span data-color="{{ route.route_color }}"
+                                              data-text-color="{{ route.route_text_color }}"
+                                              class="route-id">{{ route.route_short_name }}</span>
+                                        <span class="route-name">{{ route.route_long_name }}</span>
+                                </a>
+                        </li>
+{% endfor %}
+                </ul>
+        </nav>
+{% endfor %}
+</body>
+</html>

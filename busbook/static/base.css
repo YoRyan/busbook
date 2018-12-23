@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
+
+body {
+        font-family: "Roboto", sans-serif;
+}
+
+.route-id {
+        background-color: attrib(data-color);
+        color: attrib(data-text-color);
+}
+
+.timetable th, .timetable td {
+        width: 8rem;
+        text-align: center;
+}
+.timetable tr:hover {
+        background-color: yellow;
+}
+.time-none::after {
+        content: "\2212";
+}
+.time-pm {
+	font-weight: bold;
+}

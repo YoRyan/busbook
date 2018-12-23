@@ -1,0 +1,62 @@
+{% macro time_cell(secs) -%}
+{% if secs is none %}<td class="time-none"></td>
+{% elif secs >= 60*60*12 %}<td class="time-pm">{{ format_time(secs) }}</td>
+{% else %}<td class="time-am">{{ format_time(secs) }}</td>
+{% endif %}
+{%- endmacro %}
+<!doctype html5>
+<html>
+<head>
+        <title>{{ route.route_short_name }} - {{ route.route_long_name }} - {{ agency.agency_name }}</title>
+        <link rel="stylesheet" href="../static/base.css">
+</head>
+
+<body>
+        <header data-color="{{ route.route_color }}">
+                <h1>
+                        <span data-color="{{ route.route_color }}"
+                              data-text-color="{{ route.route_text_color }}"
+                              class="route-id">{{ route.route_short_name }}</span>
+                        <span class="route-name">{{ route.route_long_name }}</span>
+                </h1>
+        </header>
+        <main>
+{% for service in service_periods %}
+{% set directions = get_trips_by_direction(service) %}
+{% if directions != [] %}
+                <section id="{{ ''.join(weekdays(service)) }}">
+                        <h2>
+                                <a href="#{{ ''.join(weekdays(service)) }}">
+                                        {{ ' '.join(weekdays(service)) }}
+                                </a>
+                        </h2>
+{% for direction in directions %}
+{% set headsigns = direction[0] %}
+{% set trip_list = direction[1] %}
+{% set timepoints = timetable_timepoints(trip_list) %}
+                        <h3>{{ headsigns }}</h3>
+                        <table class="timetable">
+                                <thead>
+                                        <tr>
+{% for stop in timepoints %}
+                                                <th>{{ stop.stop_name }}</th>
+{% endfor %}
+                                        </tr>
+                                </thead>
+                                <tbody>
+{% for row in timetable_rows(trip_list, timepoints) %}
+                                        <tr>
+{% for time in row %}
+                                        {{ time_cell(time) }}
+{% endfor %}
+                                        </tr>
+{% endfor %}
+                                </tbody>
+                        </table>
+{% endfor %}
+                </section>
+{% endif %}
+{% endfor %}
+        </main>
+</body>
+</html>
