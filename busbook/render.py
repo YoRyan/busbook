@@ -14,24 +14,41 @@ STATIC_DIR = Path(__file__).parent/'static'
 
 class RouteSchedule(object):
 
+    _DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
     def __init__(self, gtfs, route, services):
         self.agency = next((agency for agency in gtfs.GetAgencyList()
                             if agency.agency_id == route.agency_id),
                            gtfs.GetDefaultAgency())
         self.route = route
 
-        self.service_periods = []
+        # Create a schedule for every day of the week.
+        periods = []
         all_trips = [trip for trip in gtfs.GetTripList()
                      if trip.route_id == route.route_id]
-        for service in services:
-            trips = [trip for trip in all_trips
-                     if trip.service_id == service.service_id]
-            name = self._week_range(service.day_of_week)
-            self.service_periods.append(ServicePeriod(name, trips))
+        for i in range(7):
+            service_ids = [service.service_id for service in services
+                           if service.day_of_week[i] == 1
+                              or service.day_of_week == [0]*7]
+            trips = [trip for trip in all_trips if trip.service_id in service_ids]
+            periods.append(ServicePeriod('', trips))
+
+        # Consolidate similar schedules.
+        self.service_periods = []
+        to_examine = range(7)
+        while len(to_examine) > 0:
+            this = to_examine.pop(0)
+            similar = [other for other in to_examine
+                       if periods[this] == periods[other]]
+            for other in similar:
+                to_examine.remove(other)
+
+            period = periods[this]
+            day_of_week = [int(i == this or i in similar) for i in range(7)]
+            period.rename(self._week_range(day_of_week))
+            self.service_periods.append(period)
 
     def _week_range(self, day_of_week):
-        DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-
         cont_ranges = []
         range_begin = None
         for i, b in enumerate(day_of_week):
@@ -45,9 +62,10 @@ class RouteSchedule(object):
 
         def name(begin, end):
             if begin == end:
-                return DAYS[begin]
+                return RouteSchedule._DAYS[begin]
             else:
-                return '%s - %s' % (DAYS[begin], DAYS[end])
+                return ('%s - %s'
+                        % (RouteSchedule._DAYS[begin], RouteSchedule._DAYS[end]))
         if len(cont_ranges) == 0:
             return name(0, -1)
         else:
@@ -57,15 +75,19 @@ class RouteSchedule(object):
 class ServicePeriod(object):
 
     def __init__(self, name, trips):
-        self.name = name
-        self.slug = re.sub(r'[^a-zA-Z]', '', name)
-        self.directions = []
+        self.rename(name)
+        directions = []
         for trip_list in self._separate(trips):
             headsigns = set(trip.trip_headsign or trip.GetPattern()[-1].stop_name
                             for trip in trip_list)
             direction = '/'.join(sorted(headsigns))
             timetable = Timetable(trip_list)
-            self.directions.append((direction, timetable))
+            directions.append((direction, timetable))
+        self.directions = sorted(directions, key=lambda (d, t): d)
+
+    def rename(self, name):
+        self.name = name
+        self.slug = re.sub(r'[^a-zA-Z]', '', name)
 
     def _separate(self, trips):
         """Separate trips into up to two distinct directions. Rationale: Some
@@ -95,6 +117,9 @@ class ServicePeriod(object):
                 directions[min_idx] = (direction_sequences[min_idx],
                                        min_trips + [trip])
         return [trip_list for sequence, trip_list in directions]
+
+    def __eq__(self, other):
+        return self.directions == other.directions
 
 
 class Timetable(object):
@@ -164,6 +189,9 @@ class Timetable(object):
 
     def _time(self, stop_time):
         return stop_time.departure_secs or stop_time.arrival_secs
+
+    def __eq__(self, other):
+        return self.timepoints == other.timepoints and self.rows == other.rows
 
 
 def render(gtfs, date=datetime.today(), outdir=Path('.')):
@@ -251,22 +279,26 @@ def timepoint_stops(trip):
 
 
 def timepoint_stop_times(trip):
+    timepoint_flag = (
+        lambda stop_times: all(st.timepoint is not None for st in stop_times),
+        lambda stop_time: stop_time.timepoint == 1
+        )
+    human_times = (
+        lambda stop_times: any(st.departure_time[-2:] != '00' for st in stop_times),
+        lambda stop_time: ((stop_time.arrival_time is not None
+                            and stop_time.arrival_time[-2:] == '00')
+                           or (stop_time.departure_time is not None
+                               and stop_time.departure_time[-2:] == '00'))
+        )
+    strategies = [timepoint_flag, human_times]
     # Assume GetStopTimes() returns stops in order (see trip.GetPattern).
     stop_times = trip.GetStopTimes()
-    if (all(st.timepoint is not None for st in stop_times)
-            and sum(1 for st in stop_times if st.timepoint == 1) >= 2):
-        def is_timepoint(st):
-            return st.timepoint == 1
-    elif any(st.arrival_secs is None and st.departure_secs is None
-             for st in stop_times):
-        def is_timepoint(st):
-            return st.arrival_secs is not None or st.departure_secs is not None
-    else:
-        def is_timepoint(st):
-            def is_even(t):
-                return t is not None and t[-2:] == '00'
-            return is_even(st.arrival_time) or is_even(st.departure_time)
-    return [st for st in stop_times if is_timepoint(st)]
+    for precondition, classifier in strategies:
+        if precondition(stop_times):
+            timepoints = [st for st in stop_times if classifier(st)]
+            if len(timepoints) >= 2:
+                return timepoints
+    return stop_times
 
 
 def unite(*sequences):
