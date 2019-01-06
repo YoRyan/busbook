@@ -3,7 +3,6 @@ from datetime import datetime
 from pathlib2 import Path
 from zipfile import ZipFile
 
-from busbook.gtfs import load_gtfs
 from busbook.render import render
 
 from transitfeed.loader import Loader

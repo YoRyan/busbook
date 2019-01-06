@@ -19,6 +19,10 @@ body {
 .time-none::after {
         content: "\2212";
 }
+.time-skip::after {
+        color: grey;
+        content: "\27f6";
+}
 .time-pm {
 	font-weight: bold;
 }
