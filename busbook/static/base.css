@@ -1,7 +1,48 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
 
+:root {
+        --highlight-color: #00c4ff;
+        --highlight-text-color: white;
+        --light-highlight-color: #7ee1ff;
+        --border-color: #c8c8c8;
+}
+
+* {
+        margin: 0;
+        padding: 0;
+}
 body {
         font-family: "Roboto", sans-serif;
+        padding: 1rem;
+}
+section {
+        padding-top: 1rem;
+}
+table {
+        border-collapse: collapse;
+}
+
+ul.tab-navigation > li {
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        margin-right: 0.3rem;
+        padding: 0.5rem 1rem;
+        display: inline-block;
+}
+ul.tab-navigation > li[data-tab-nav-active=true] {
+        cursor: default;
+        color: var(--highlight-text-color);
+        background-color: var(--highlight-color);
+}
+ul.tab-navigation > li[data-tab-nav-active=false] {
+        cursor: pointer;
+}
+ul.tab-navigation > li[data-tab-nav-active=false]:hover {
+        cursor: pointer;
+        background-color: var(--light-highlight-color);
+}
+[data-tab-content-active=false] {
+        display: none;
 }
 
 .route-id {
@@ -9,12 +50,27 @@ body {
         color: attrib(data-text-color);
 }
 
-.timetable th, .timetable td {
+table.timetable {
+        margin: 0.5rem 0;
+}
+table.timetable th, table.timetable td {
         width: 8rem;
         text-align: center;
 }
-.timetable tr:hover {
-        background-color: yellow;
+table.timetable th {
+        color: var(--highlight-text-color);
+        background-color: var(--highlight-color);
+        padding: 0.5rem 0.3rem;
+}
+table.timetable th a {
+        display: block;
+        font-size: 70%;
+}
+table.timetable td {
+        padding: 0.1rem 0;
+}
+table.timetable tr:hover {
+        background-color: var(--light-highlight-color);
 }
 .time-none::after {
         content: "\2212";

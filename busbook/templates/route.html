@@ -1,8 +1,10 @@
+{% import "base.html" as base %}
 <!doctype html5>
 <html>
 <head>
         <title>{{ schedule.route.route_short_name }} - {{ schedule.route.route_long_name }} - {{ schedule.agency.agency_name }}</title>
         <link rel="stylesheet" href="../static/base.css">
+        <script src="../static/common.js"></script>
 </head>
 
 <body>
@@ -16,20 +18,21 @@
         </header>
         <main>
 {% for period in schedule.service_periods %}
-{% if period.directions != [] %}
                 <section id="{{ period.slug }}">
-                        <h2>
-                                <a href="#{{ period.slug }}">
-                                        {{ period.name }}
-                                </a>
-                        </h2>
+                        <h2 class="tab-header">{{ period.name }}</h2>
 {% for direction, timetable in period.directions %}
                         <h3>{{ direction }}</h3>
                         <table class="timetable">
                                 <thead>
                                         <tr>
 {% for stop in timetable.timepoints %}
-                                                <th>{{ stop.stop_name }}</th>
+                                                <th>
+                                                        {{ stop.stop_name }}
+                                                        <a href="{{ stop.stop_url }}"
+                                                           target="_blank">
+                                                                #{{ stop.stop_id }}
+                                                        </a>
+                                                </th>
 {% endfor %}
                                         </tr>
                                 </thead>
@@ -53,8 +56,8 @@
                         </table>
 {% endfor %}
                 </section>
-{% endif %}
 {% endfor %}
         </main>
+        <script src="../static/route.js"></script>
 </body>
 </html>

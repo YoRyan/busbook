@@ -31,11 +31,12 @@ class RouteSchedule(object):
                            if service.day_of_week[i] == 1
                               or service.day_of_week == [0]*7]
             trips = [trip for trip in all_trips if trip.service_id in service_ids]
-            periods.append(ServicePeriod('', trips))
+            if len(trips) > 0:
+                periods.append(ServicePeriod('', trips))
 
         # Consolidate similar schedules.
         self.service_periods = []
-        to_examine = range(7)
+        to_examine = range(len(periods))
         while len(to_examine) > 0:
             this = to_examine.pop(0)
             similar = [other for other in to_examine
@@ -44,7 +45,8 @@ class RouteSchedule(object):
                 to_examine.remove(other)
 
             period = periods[this]
-            day_of_week = [int(i == this or i in similar) for i in range(7)]
+            day_of_week = [int(i == this or i in similar)
+                           for i in range(len(periods))]
             period.rename(self._week_range(day_of_week))
             self.service_periods.append(period)
 
@@ -196,8 +198,11 @@ class Timetable(object):
 
 def render(gtfs, date=datetime.today(), outdir=Path('.')):
     clear_out(outdir)
-    env = Environment(loader=PackageLoader('busbook', 'templates'),
-                      autoescape=select_autoescape(['html']))
+    env = Environment(
+        loader=PackageLoader('busbook', 'templates'),
+        autoescape=select_autoescape(['html']),
+        trim_blocks=True,
+        lstrip_blocks=True)
     render_index(env, gtfs, outdir=outdir)
     for route in gtfs.GetRouteList():
         render_route(env, gtfs, effective_services(gtfs, date), route,
