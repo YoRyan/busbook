@@ -1,0 +1,55 @@
+header {
+        padding-bottom: 1rem;
+        border-bottom: 0.3rem solid var(--route-color);
+}
+
+#route-nav {
+        margin-top: 3rem;
+}
+ul.tab-navigation > li[data-tab-nav-active=true] {
+        color: var(--route-text-color);
+        background-color: var(--route-color);
+}
+
+h3 {
+        margin-top: 2rem;
+}
+table.timetable {
+        margin: 0.5rem 0;
+        border: 1px solid var(--border-color);
+}
+table.timetable th, table.timetable td {
+        width: 8rem;
+        text-align: center;
+}
+table.timetable th {
+        color: var(--route-text-color);
+        background-color: var(--route-color);
+        padding: 0.5rem 0.3rem 1.2rem 0.3rem;
+        position: sticky;
+        top: -1px;
+}
+table.timetable th .stop-id {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0.3rem;
+        text-align: center;
+        font-size: 0.7rem;
+}
+table.timetable td {
+        padding: 0.1rem 0;
+}
+table.timetable tr:hover {
+        background-color: var(--border-color);
+}
+table.timetable td.timetable-no::after {
+        content: "\2212";
+}
+table.timetable td.timetable-skip::after {
+        color: grey;
+        content: "\27f6";
+}
+table.timetable .time-pm {
+	font-weight: bold;
+}

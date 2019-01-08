@@ -1,7 +1,9 @@
-<!doctype html5>
+<!DOCTYPE html>
 <html>
 <head>
         <title>{{ agencies }} Bus Book</title>
+        <link rel="stylesheet" href="static/base.css">
+        <link rel="stylesheet" href="static/index.css">
 </head>
 
 <body>
@@ -16,12 +18,10 @@
                 </address>
                 <ul>
 {% for route in get_routes(agency.agency_id) %}
-                        <li>
+                        <li style="{{ route|route_css }}">
                                 <a href="routes/{{ agency.agency_id }}-{{ route.route_id }}.html"
                                    title="Route {{ route.route_short_name }}">
-                                        <span data-color="{{ route.route_color }}"
-                                              data-text-color="{{ route.route_text_color }}"
-                                              class="route-id">{{ route.route_short_name }}</span>
+                                        <span class="route-id">{{ route.route_short_name }}</span>
                                         <span class="route-name">{{ route.route_long_name }}</span>
                                 </a>
                         </li>

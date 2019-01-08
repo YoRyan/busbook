@@ -1,18 +1,17 @@
 {% import "base.html" as base %}
-<!doctype html5>
+<!DOCTYPE html>
 <html>
 <head>
         <title>{{ schedule.route.route_short_name }} - {{ schedule.route.route_long_name }} - {{ schedule.agency.agency_name }}</title>
         <link rel="stylesheet" href="../static/base.css">
+        <link rel="stylesheet" href="../static/route.css">
         <script src="../static/common.js"></script>
 </head>
 
-<body>
-        <header data-color="{{ schedule.route.route_color }}">
+<body style="{{ schedule.route|route_css }}">
+        <header>
                 <h1>
-                        <span data-color="{{ schedule.route.route_color }}"
-                              data-text-color="{{ schedule.route.route_text_color }}"
-                              class="route-id">{{ schedule.route.route_short_name }}</span>
+                        <span class="route-id">{{ schedule.route.route_short_name }}</span>
                         <span class="route-name">{{ schedule.route.route_long_name }}</span>
                 </h1>
         </header>
@@ -27,11 +26,16 @@
                                         <tr>
 {% for stop in timetable.timepoints %}
                                                 <th>
-                                                        {{ stop.stop_name }}
+                                                        {{ stop.stop_name|break }}
+{% if stop.stop_url %}
                                                         <a href="{{ stop.stop_url }}"
-                                                           target="_blank">
+                                                           target="_blank"
+                                                           class="stop-id">
                                                                 #{{ stop.stop_id }}
                                                         </a>
+{% else %}
+                                                        <span class="stop-id">#{{ stop.stop_id }}</span>
+{% endif %}
                                                 </th>
 {% endfor %}
                                         </tr>
@@ -41,13 +45,11 @@
                                         <tr>
 {% for time in row %}
 {% if time == Timetable.NO_SERVICE %}
-                                                <td class="time-none"></td>
+                                                <td class="timetable-no"></td>
 {% elif time == Timetable.SKIP %}
-                                                <td class="time-skip"></td>
-{% elif time % (60*60*24) >= 60*60*12 %}
-                                                <td class="time-pm">{{ format_time(time) }}</td>
+                                                <td class="timetable-skip"></td>
 {% else %}
-                                                <td class="time-am">{{ format_time(time) }}</td>
+                                                <td>{{ time|time }}</td>
 {% endif %}
 {% endfor %}
                                         </tr>

@@ -1,0 +1,16 @@
+ul {
+        list-style: none;
+}
+ul li {
+        margin-top: 1rem;
+}
+ul a:visited, ul a:link, ul a:hover, ul a:focus, ul a:active {
+        padding: 0;
+        color: inherit;
+        background-color: unset;
+        display: block;
+        border: none;
+}
+ul a:hover .route-name, ul a:focus .route-name, ul a:active .route-name {
+        text-decoration: underline;
+}

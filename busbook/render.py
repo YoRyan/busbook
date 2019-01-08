@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import errno
 import re
 from datetime import datetime
@@ -5,7 +6,7 @@ from itertools import tee
 from shutil import rmtree, copytree
 
 import networkx
-from jinja2 import Environment, PackageLoader, select_autoescape
+import jinja2
 from pathlib2 import Path
 
 
@@ -198,11 +199,50 @@ class Timetable(object):
 
 def render(gtfs, date=datetime.today(), outdir=Path('.')):
     clear_out(outdir)
-    env = Environment(
-        loader=PackageLoader('busbook', 'templates'),
-        autoescape=select_autoescape(['html']),
+    env = jinja2.Environment(
+        loader=jinja2.PackageLoader('busbook', 'templates'),
+        autoescape=jinja2.select_autoescape(['html']),
         trim_blocks=True,
         lstrip_blocks=True)
+
+    @jinja2.evalcontextfilter
+    def make_breaks(eval_ctx, s):
+        res = re.sub(
+            r'(&amp;|@|-|/)', r'\1' + jinja2.Markup('&#8203;'), jinja2.escape(s))
+        if eval_ctx.autoescape:
+            res = jinja2.Markup(res)
+        return res
+    env.filters['break'] = make_breaks
+
+    @jinja2.evalcontextfilter
+    def format_time(eval_ctx, secs):
+        hours = secs // 3600 % 24
+        minutes = secs // 60 % 60
+        if hours == 0:
+            s = '12:%02d' % minutes
+        elif hours > 12:
+            s = '%d:%02d' % (hours - 12, minutes)
+        else:
+            s = '%d:%02d' % (hours, minutes)
+        if hours < 12:
+            res = jinja2.Markup('<span class="time-am">%s</span>' % s)
+        else:
+            res = jinja2.Markup('<span class="time-pm">%s</span>' % s)
+        if eval_ctx.autoescape:
+            res = jinja2.Markup(res)
+        return res
+    env.filters['time'] = format_time
+
+    def route_css(route):
+        if route.route_color and route.route_text_color:
+            return ('--route-color: #%s; --route-text-color: #%s;'
+                    % (route.route_color, route.route_text_color))
+        elif route.route_color:
+            return '--route-color: #%s;' % route.route_color
+        else:
+            return ''
+    env.filters['route_css'] = route_css
+
     render_index(env, gtfs, outdir=outdir)
     for route in gtfs.GetRouteList():
         render_route(env, gtfs, effective_services(gtfs, date), route,
@@ -259,23 +299,12 @@ def render_route(env, gtfs, service_periods, route, outdir=Path('.')):
         print('Processing %s %s.'
               % (route.route_short_name, route.route_long_name))
 
-    def format_time(secs):
-        hours = secs // 3600 % 24
-        minutes = secs // 60 % 60
-        if hours == 0:
-            return '12:%02d' % minutes
-        elif hours > 12:
-            return '%d:%02d' % (hours - 12, minutes)
-        else:
-            return '%d:%02d' % (hours, minutes)
-
     schedule = RouteSchedule(gtfs, route, services=service_periods)
     write_out(
         outdir/'routes'/('%s-%s.html' % (schedule.agency.agency_id, route.route_id)),
         env.get_template('route.html').render(
             gtfs=gtfs,
             schedule=schedule,
-            format_time=format_time,
             Timetable=Timetable))
 
 
