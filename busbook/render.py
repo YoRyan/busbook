@@ -22,11 +22,16 @@ class RouteSchedule(object):
                             if agency.agency_id == route.agency_id),
                            gtfs.GetDefaultAgency())
         self.route = route
+        all_trips = [trip for trip in gtfs.GetTripList()
+                     if trip.route_id == route.route_id]
+        self.stops = set(sum((list(trip.GetPattern()) for trip in all_trips), []))
+        self.timepoints = set(sum((timepoint_stops(trip) for trip in all_trips), []))
+        self.shapes = [gtfs.GetShape(shape_id)
+                       for shape_id in set(trip.shape_id for trip in all_trips
+                                           if trip.shape_id)]
 
         # Create a schedule for every day of the week.
         periods = []
-        all_trips = [trip for trip in gtfs.GetTripList()
-                     if trip.route_id == route.route_id]
         for i in range(7):
             service_ids = [service.service_id for service in services
                            if service.day_of_week[i] == 1

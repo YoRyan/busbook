@@ -17,6 +17,7 @@ body {
 table {
         border-collapse: collapse;
 }
+
 a {
         text-decoration: none;
         padding: 0 0.2em;
@@ -31,6 +32,11 @@ a:hover, a:focus {
 a:active {
         color: var(--route-color);
         background-color: var(--route-text-color);
+}
+.leaflet-container a {
+        color: inherit;
+        background-color: inherit;
+        padding: 0;
 }
 
 ul.tab-navigation {

@@ -6,6 +6,7 @@
         <link rel="stylesheet" href="../static/base.css">
         <link rel="stylesheet" href="../static/route.css">
         <script src="../static/common.js"></script>
+{{ base.leaflet() }}
 </head>
 
 <body style="{{ schedule.route|route_css }}">
@@ -16,6 +17,7 @@
                 </h1>
         </header>
         <main>
+                <div id="route-map"></div>
 {% for period in schedule.service_periods %}
                 <section id="{{ period.slug }}">
                         <h2 class="tab-header">{{ period.name }}</h2>
@@ -25,7 +27,7 @@
                                 <thead>
                                         <tr>
 {% for stop in timetable.timepoints %}
-                                                <th>
+                                                <th data-stop-id="{{ stop.stop_id }}">
                                                         {{ stop.stop_name|break }}
 {% if stop.stop_url %}
                                                         <a href="{{ stop.stop_url }}"
@@ -60,6 +62,23 @@
                 </section>
 {% endfor %}
         </main>
+        <script>
+Stops = [
+{% for stop in schedule.stops %}
+        {{ dict(stop.iteritems())|tojson }},
+{% endfor %}
+];
+Timepoints = [
+{% for stop in schedule.timepoints %}
+        {{ dict(stop.iteritems())|tojson }},
+{% endfor %}
+];
+Shapes = [
+{% for shape in schedule.shapes %}
+        {{ shape.points|tojson }},
+{% endfor %}
+];
+        </script>
         <script src="../static/route.js"></script>
 </body>
 </html>
