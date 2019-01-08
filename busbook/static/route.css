@@ -28,6 +28,11 @@ main {
 #route-map.leaflet-container {
         height: 25rem;
 }
+#route-map.leaflet-fullscreen-on {
+        position: relative !important;
+        width: auto !important;
+        height: calc(100vh - 12rem - 2rem) !important;
+}
 
 h3 {
         margin-top: 2rem;

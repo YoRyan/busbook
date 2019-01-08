@@ -10,7 +10,7 @@ const OsmLayer = new L.TileLayer(
         "https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png",
         { attribution: 'Map &copy; <a href="https://openstreetmap.org">'
                         + 'OpenStreetMap</a>' });
-RouteMap = L.map("route-map")
+RouteMap = L.map("route-map", { fullscreenControl: { pseudoFullscreen: true } })
         .addLayer(OsmLayer)
 L.control.layers({ "OpenStreetMap": OsmLayer })
         .addTo(RouteMap);
@@ -21,13 +21,16 @@ function MakeTooltip(stop, layer) {
         layer.bindTooltip(stop.stop_name);
         return layer;
 }
+L.polyline(Shapes, { color: RouteColor })
+        .addTo(RouteMap);
 Stops.forEach(function (stop) {
         var marker;
         if (Timepoints.find(timepoint => timepoint.stop_id === stop.stop_id)
             === undefined) {
                 marker = L.circleMarker([stop.stop_lat, stop.stop_lon],
                                         { radius: 8,
-                                          stroke: false,
+                                          stroke: true,
+                                          color: RouteTextColor,
                                           fillColor: RouteColor,
                                           fillOpacity: 1.0 })
                         .addTo(RouteMap);
@@ -39,5 +42,3 @@ Timepoints.forEach(function (stop) {
                 .addTo(RouteMap);
         MakeTooltip(stop, marker);
 });
-L.polyline(Shapes, { color: RouteColor })
-        .addTo(RouteMap);
