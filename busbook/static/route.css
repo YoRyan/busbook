@@ -1,14 +1,27 @@
 header {
-        padding-bottom: 1rem;
-        border-bottom: 0.3rem solid var(--route-color);
+        background-color: white;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
+        height: 10rem;
+        box-shadow: 0 0 1rem black;
 }
-
-#route-nav {
-        margin-top: 3rem;
+header > h1 {
+        margin: 1rem;
 }
-ul.tab-navigation > li[data-tab-nav-active=true] {
-        color: var(--route-text-color);
+header > ul.tab-navigation {
         background-color: var(--route-color);
+        text-transform: uppercase;
+        padding: 0 1rem;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+}
+main {
+        margin-top: 12rem;
 }
 
 h3 {
@@ -27,7 +40,7 @@ table.timetable th {
         background-color: var(--route-color);
         padding: 0.5rem 0.3rem 1.2rem 0.3rem;
         position: sticky;
-        top: -1px;
+        top: calc(10rem - 1px); /* Close the 1px gap for Chrome. */
 }
 table.timetable th .stop-id {
         position: absolute;

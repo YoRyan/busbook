@@ -33,24 +33,28 @@ a:active {
         background-color: var(--route-text-color);
 }
 
+ul.tab-navigation {
+        color: var(--route-text-color);
+        background-color: var(--route-color);
+        font-size: 110%;
+}
 ul.tab-navigation > li {
-        border: 1px solid var(--border-color);
-        border-radius: 0.5em;
-        margin-right: 0.3rem;
-        padding: 0.5rem 1rem;
         display: inline-block;
+        padding: 1em 2em 0.7em 2em;
+        border-bottom: 0.3em solid;
 }
 ul.tab-navigation > li[data-tab-nav-active=true] {
         cursor: default;
-        color: white;
-        background-color: black;
+}
+ul.tab-navigation > li[data-tab-nav-active=true] {
+        border-bottom-color: var(--route-text-color);
+}
+ul.tab-navigation > li[data-tab-nav-active=false]:hover {
+        border-bottom-color: var(--border-color);
 }
 ul.tab-navigation > li[data-tab-nav-active=false] {
         cursor: pointer;
-}
-ul.tab-navigation > li[data-tab-nav-active=false]:hover {
-        cursor: pointer;
-        background-color: var(--border-color);
+        border-bottom-color: var(--route-color);
 }
 [data-tab-content-active=false] {
         display: none;
