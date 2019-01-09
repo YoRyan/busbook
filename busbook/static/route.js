@@ -1,11 +1,14 @@
+/* Read route colors. */
 BodyStyle = getComputedStyle(document.body)
 RouteColor = BodyStyle.getPropertyValue("--route-color");
 RouteTextColor = BodyStyle.getPropertyValue("--route-text-color");
 
+/* Initialize tabbed navigation. */
 RouteTabs = new Tabs(document.getElementsByTagName("section"));
 Header = document.getElementsByTagName("header")[0];
 Header.appendChild(RouteTabs.navigation);
 
+/* Create map and base layers. */
 const OsmLayer = new L.TileLayer(
         "https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png",
         { attribution: 'Map &copy; <a href="https://openstreetmap.org">'
@@ -24,6 +27,12 @@ L.control.layers({ "OpenStreetMap": OsmLayer,
 RouteBounds = new L.LatLngBounds(Stops.map(stop => [stop.stop_lat, stop.stop_lon]));
 RouteMap.fitBounds(RouteBounds);
 
+/* Recompute map size after CSS transitions. */
+document.getElementById("route-map")
+        .addEventListener("transitionend",
+                          function (event) { RouteMap.invalidateSize(); });
+
+/* Add route lines and stops. */
 function MakeTooltip(stop, layer) {
         layer.bindTooltip(stop.stop_name);
         return layer;
