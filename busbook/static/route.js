@@ -9,10 +9,17 @@ Header.appendChild(RouteTabs.navigation);
 const OsmLayer = new L.TileLayer(
         "https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png",
         { attribution: 'Map &copy; <a href="https://openstreetmap.org">'
-                        + 'OpenStreetMap</a>' });
+                        + 'OpenStreetMap</a>' }),
+      EsriLayer = new L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/"
+        + "MapServer/tile/{z}/{y}/{x}",
+        { attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, "
+                       + "USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, "
+                       + "UPR-EGP, and the GIS User Community" });
 RouteMap = L.map("route-map", { fullscreenControl: { pseudoFullscreen: true } })
         .addLayer(OsmLayer)
-L.control.layers({ "OpenStreetMap": OsmLayer })
+L.control.layers({ "OpenStreetMap": OsmLayer,
+                   "Satellite (Esri)": EsriLayer })
         .addTo(RouteMap);
 RouteBounds = new L.LatLngBounds(Stops.map(stop => [stop.stop_lat, stop.stop_lon]));
 RouteMap.fitBounds(RouteBounds);
